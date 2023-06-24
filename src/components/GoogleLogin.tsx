@@ -7,6 +7,7 @@ interface IGoogleLoginProps {
 	onSignIn: (googleUser: any) => void;
 	options?: object;
 	setLoading?: (loading: boolean) => void;
+	showOneTapDialog?: boolean;
 }
 
 const SCRIPT_SRC = 'https://accounts.google.com/gsi/client';
@@ -17,6 +18,7 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({
 	onSignIn,
 	options,
 	setLoading,
+	showOneTapDialog,
 }) => {
 	const [scriptLoaded, setScriptLoaded] = useState<boolean>(false);
 
@@ -37,7 +39,7 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({
 				callback: onSignIn,
 			});
 
-			let googleOptions = {};
+			let googleOptions = {} as any;
 			if (options) {
 				googleOptions = { ...options };
 			} else {
@@ -45,11 +47,16 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({
 					size: 'large',
 				};
 			}
+
+			if (!googleOptions?.width) {
+				googleOptions.width = buttonRef.current?.clientWidth;
+			}
+
 			google?.accounts.id.renderButton(buttonRef.current, googleOptions);
 
 			setLoading?.(true);
 
-			google?.accounts.id.prompt(); // also display the One Tap dialog
+			if (showOneTapDialog) google?.accounts.id.prompt(); // also display the One Tap dialog
 		};
 
 		const scriptExists = document.querySelector(`script[src="${SCRIPT_SRC}"]`);
@@ -70,7 +77,7 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({
 				document.getElementById('google-client-script')?.remove();
 			}
 		};
-	}, [options, clientId, scriptLoaded, onSignIn, setLoading]);
+	}, [options, clientId, scriptLoaded, onSignIn, setLoading, showOneTapDialog]);
 
 	return <button ref={buttonRef} type='button' className={className} />;
 };
@@ -80,6 +87,7 @@ GoogleLogin.defaultProps = {
 	clientId: '',
 	options: undefined,
 	setLoading: undefined,
+	showOneTapDialog: false,
 };
 
 GoogleLogin.propTypes = {
@@ -87,6 +95,7 @@ GoogleLogin.propTypes = {
 	className: PropType.string,
 	options: PropType.object,
 	setLoading: PropType.func,
+	showOneTapDialog: PropType.bool,
 };
 
 export default GoogleLogin;
