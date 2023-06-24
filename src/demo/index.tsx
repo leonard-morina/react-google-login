@@ -7,7 +7,7 @@ root.render(
 	<React.StrictMode>
 		<div>
 			<GoogleLogin
-				clientId='752116776790-i10f3c209g0p86k1om6lug7hiskp6ap1.apps.googleusercontent.com'
+				clientId='demo'
 				onSignIn={(res) => {
 					console.log('res', res);
 				}}

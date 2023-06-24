@@ -5,11 +5,21 @@ interface IGoogleLoginProps {
 	className?: string;
 	clientId: string;
 	onSignIn: (googleUser: any) => void;
+	customClassName?: string;
+	theme?: string;
+	setLoading?: (loading: boolean) => void;
 }
 
 const SCRIPT_SRC = 'https://accounts.google.com/gsi/client';
 
-const GoogleLogin: FC<IGoogleLoginProps> = ({ className, clientId, onSignIn }) => {
+const GoogleLogin: FC<IGoogleLoginProps> = ({
+	className,
+	customClassName,
+	clientId,
+	onSignIn,
+	theme,
+	setLoading,
+}) => {
 	const [scriptLoaded, setScriptLoaded] = useState<boolean>(false);
 
 	const buttonRef = useRef<HTMLButtonElement>(null);
@@ -31,10 +41,13 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({ className, clientId, onSignIn }) =
 			google?.accounts.id.renderButton(
 				buttonRef.current,
 				{
-					theme: 'outline',
+					theme: theme,
 					size: 'large',
+					customClass: customClassName,
 				}, // customization attributes
 			);
+
+			setLoading?.(true);
 
 			// google?.accounts.id.prompt(); // also display the One Tap dialog
 		};
@@ -57,17 +70,25 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({ className, clientId, onSignIn }) =
 				document.getElementById('google-client-script')?.remove();
 			}
 		};
-	}, [window, clientId, scriptLoaded, onSignIn]);
+	}, [customClassName, theme, clientId, scriptLoaded, onSignIn, setLoading]);
 
 	return <button ref={buttonRef} type='button' className={className} />;
 };
 
 GoogleLogin.defaultProps = {
 	className: '',
+	clientId: '',
+	theme: 'outline',
+	customClassName: '',
+	setLoading: undefined,
 };
 
 GoogleLogin.propTypes = {
+	clientId: PropType.string.isRequired,
 	className: PropType.string,
+	theme: PropType.string,
+	customClassName: PropType.string,
+	setLoading: PropType.func,
 };
 
 export default GoogleLogin;
