@@ -2,14 +2,27 @@ import React, { useEffect, FC, useState, useRef, useMemo, useCallback } from 're
 import PropType from 'prop-types';
 import useWindowSize from '../hooks/useWindowSize';
 
+type SignInResponse = {
+	credential: string;
+	clientId: string;
+	client_id: string;
+	select_by: 'btn' | 'user';
+};
 interface IGoogleLoginProps {
 	className?: string;
 	clientId: string;
-	onSignIn: (googleUser: any) => void;
-	options?: object;
+	onSignIn: (response: SignInResponse) => void;
+	options?: RenderButtonOptions;
 	setLoading?: (loading: boolean) => void;
 	showOneTapDialog?: boolean;
 }
+
+type RenderButtonOptions = {
+	width?: number;
+	size?: 'small' | 'medium' | 'large';
+	theme?: 'outline' | 'filled' | 'filled_blue' | 'standard';
+	height?: number;
+};
 
 const SCRIPT_SRC = 'https://accounts.google.com/gsi/client';
 
@@ -25,7 +38,7 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({
 
 	const windowSize = useWindowSize();
 
-	const buttonRef = useRef<HTMLButtonElement>(null);
+	const divRef = useRef<HTMLDivElement>(null);
 
 	const googleOptions = useMemo(() => {
 		let reconciledOptions = {} as any;
@@ -38,11 +51,11 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({
 		}
 
 		if (!reconciledOptions?.width) {
-			reconciledOptions.width = buttonRef.current?.clientWidth;
+			reconciledOptions.width = divRef.current?.clientWidth;
 		}
 
 		return reconciledOptions;
-	}, [options, buttonRef.current?.clientWidth]);
+	}, [options, divRef.current?.clientWidth]);
 
 	const promptOneTapDialog = useCallback((google: any) => {
 		google?.accounts.id.prompt((notification: any) => {
@@ -68,7 +81,7 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({
 				callback: onSignIn,
 			});
 
-			google?.accounts.id.renderButton(buttonRef.current, googleOptions);
+			google?.accounts.id.renderButton(divRef.current, googleOptions);
 
 			setLoading?.(true);
 
@@ -108,7 +121,7 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({
 		const google = (window as any)?.google;
 		if (!google) return;
 
-		google?.accounts.id.renderButton(buttonRef.current, googleOptions);
+		google?.accounts.id.renderButton(divRef.current, googleOptions);
 
 		if (showOneTapDialog) promptOneTapDialog(google);
 	}, [
@@ -116,11 +129,11 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({
 		windowSize,
 		googleOptions,
 		showOneTapDialog,
-		buttonRef.current,
+		divRef.current,
 		promptOneTapDialog,
 	]);
 
-	return <button ref={buttonRef} type='button' className={className} />;
+	return <div ref={divRef} className={className} />;
 };
 
 GoogleLogin.defaultProps = {
