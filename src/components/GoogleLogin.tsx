@@ -1,5 +1,6 @@
-import React, { useEffect, FC, useState, useRef } from 'react';
+import React, { useEffect, FC, useState, useRef, useMemo } from 'react';
 import PropType from 'prop-types';
+import useWindowSize from '../hooks/useWindowSize';
 
 interface IGoogleLoginProps {
 	className?: string;
@@ -21,15 +22,33 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({
 	showOneTapDialog,
 }) => {
 	const [scriptLoaded, setScriptLoaded] = useState<boolean>(false);
+	const windowSize = useWindowSize();
 
 	const buttonRef = useRef<HTMLButtonElement>(null);
 
+	const googleOptions = useMemo(() => {
+		let reconciledOptions = {} as any;
+		if (options) {
+			reconciledOptions = { ...options };
+		} else {
+			reconciledOptions = {
+				size: 'large',
+			};
+		}
+
+		if (!reconciledOptions?.width) {
+			reconciledOptions.width = buttonRef.current?.clientWidth;
+		}
+
+		return reconciledOptions;
+	}, [options]);
+
 	useEffect(() => {
 		if (!window || scriptLoaded) return;
-		const google = (window as any).google;
+		const google = (window as any)?.google;
 
 		const initializeGsi = () => {
-			const google = (window as any).google;
+			const google = (window as any)?.google;
 			if (!google?.accounts || scriptLoaded) return;
 
 			setScriptLoaded(true);
@@ -38,19 +57,6 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({
 				client_id: clientId,
 				callback: onSignIn,
 			});
-
-			let googleOptions = {} as any;
-			if (options) {
-				googleOptions = { ...options };
-			} else {
-				googleOptions = {
-					size: 'large',
-				};
-			}
-
-			if (!googleOptions?.width) {
-				googleOptions.width = buttonRef.current?.clientWidth;
-			}
 
 			google?.accounts.id.renderButton(buttonRef.current, googleOptions);
 
@@ -77,7 +83,15 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({
 				document.getElementById('google-client-script')?.remove();
 			}
 		};
-	}, [options, clientId, scriptLoaded, onSignIn, setLoading, showOneTapDialog]);
+	}, [googleOptions, clientId, scriptLoaded, onSignIn, setLoading, showOneTapDialog]);
+
+	useEffect(() => {
+		if (!scriptLoaded || !windowSize?.width) return;
+		const google = (window as any)?.google;
+		if (!google) return;
+
+		google?.accounts.id.renderButton(buttonRef.current, googleOptions);
+	}, [scriptLoaded, windowSize, googleOptions]);
 
 	return <button ref={buttonRef} type='button' className={className} />;
 };
