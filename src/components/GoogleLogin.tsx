@@ -6,17 +6,21 @@ interface IGoogleLoginProps {
 	clientId: string;
 	onSignIn: (googleUser: any) => void;
 }
+
+const SCRIPT_SRC = 'https://accounts.google.com/gsi/client';
+
 const GoogleLogin: FC<IGoogleLoginProps> = ({ className, clientId, onSignIn }) => {
 	const [scriptLoaded, setScriptLoaded] = useState<boolean>(false);
 
 	const buttonRef = useRef<HTMLButtonElement>(null);
 
 	useEffect(() => {
-		if (scriptLoaded) return;
+		if (!window || scriptLoaded) return;
 		const google = (window as any).google;
 
 		const initializeGsi = () => {
-			if (!google || scriptLoaded || !google.accounts) return;
+			const google = (window as any).google;
+			if (!google?.accounts || scriptLoaded) return;
 
 			setScriptLoaded(true);
 			google?.accounts?.id.initialize({
@@ -32,15 +36,19 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({ className, clientId, onSignIn }) =
 				}, // customization attributes
 			);
 
-			google?.accounts.id.prompt(); // also display the One Tap dialog
+			// google?.accounts.id.prompt(); // also display the One Tap dialog
 		};
 
-		const script = document.createElement('script');
-		script.src = 'https://accounts.google.com/gsi/client';
-		script.onload = initializeGsi;
-		script.async = true;
-		script.id = 'google-client-script';
-		document.querySelector('body')?.appendChild(script);
+		const scriptExists = document.querySelector(`script[src="${SCRIPT_SRC}"]`);
+
+		if (!scriptExists) {
+			const script = document.createElement('script');
+			script.src = SCRIPT_SRC;
+			script.onload = initializeGsi;
+			script.async = true;
+			script.id = 'google-client-script';
+			document.querySelector('body')?.appendChild(script);
+		}
 
 		return () => {
 			// Cleanup function that runs when component unmounts
@@ -49,7 +57,7 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({ className, clientId, onSignIn }) =
 				document.getElementById('google-client-script')?.remove();
 			}
 		};
-	}, [clientId, scriptLoaded, onSignIn]);
+	}, [window, clientId, scriptLoaded, onSignIn]);
 
 	return <button ref={buttonRef} type='button' className={className} />;
 };
