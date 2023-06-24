@@ -1,4 +1,4 @@
-import React, { useEffect, FC, useState } from 'react';
+import React, { useEffect, FC, useState, useRef } from 'react';
 import PropType from 'prop-types';
 
 interface IGoogleLoginProps {
@@ -8,6 +8,8 @@ interface IGoogleLoginProps {
 }
 const GoogleLogin: FC<IGoogleLoginProps> = ({ className, clientId, onSignIn }) => {
 	const [scriptLoaded, setScriptLoaded] = useState<boolean>(false);
+
+	const buttonRef = useRef<HTMLButtonElement>(null);
 
 	useEffect(() => {
 		if (scriptLoaded) return;
@@ -23,13 +25,10 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({ className, clientId, onSignIn }) =
 			});
 
 			google?.accounts.id.renderButton(
-				document.getElementById('id2'),
+				buttonRef.current,
 				{
 					theme: 'outline',
 					size: 'large',
-					text: 'haha',
-					buttonText: 'haha',
-					longtitle: true,
 				}, // customization attributes
 			);
 
@@ -52,7 +51,7 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({ className, clientId, onSignIn }) =
 		};
 	}, [clientId, scriptLoaded, onSignIn]);
 
-	return <button type='button' className={className} />;
+	return <button ref={buttonRef} type='button' className={className} />;
 };
 
 GoogleLogin.defaultProps = {
