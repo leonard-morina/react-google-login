@@ -5,8 +5,7 @@ interface IGoogleLoginProps {
 	className?: string;
 	clientId: string;
 	onSignIn: (googleUser: any) => void;
-	customClassName?: string;
-	theme?: string;
+	options?: object;
 	setLoading?: (loading: boolean) => void;
 }
 
@@ -14,10 +13,9 @@ const SCRIPT_SRC = 'https://accounts.google.com/gsi/client';
 
 const GoogleLogin: FC<IGoogleLoginProps> = ({
 	className,
-	customClassName,
 	clientId,
 	onSignIn,
-	theme,
+	options,
 	setLoading,
 }) => {
 	const [scriptLoaded, setScriptLoaded] = useState<boolean>(false);
@@ -33,23 +31,25 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({
 			if (!google?.accounts || scriptLoaded) return;
 
 			setScriptLoaded(true);
+
 			google?.accounts?.id.initialize({
 				client_id: clientId,
 				callback: onSignIn,
 			});
 
-			google?.accounts.id.renderButton(
-				buttonRef.current,
-				{
-					theme: theme,
+			let googleOptions = {};
+			if (options) {
+				googleOptions = { ...options };
+			} else {
+				googleOptions = {
 					size: 'large',
-					customClass: customClassName,
-				}, // customization attributes
-			);
+				};
+			}
+			google?.accounts.id.renderButton(buttonRef.current, googleOptions);
 
 			setLoading?.(true);
 
-			// google?.accounts.id.prompt(); // also display the One Tap dialog
+			google?.accounts.id.prompt(); // also display the One Tap dialog
 		};
 
 		const scriptExists = document.querySelector(`script[src="${SCRIPT_SRC}"]`);
@@ -70,7 +70,7 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({
 				document.getElementById('google-client-script')?.remove();
 			}
 		};
-	}, [customClassName, theme, clientId, scriptLoaded, onSignIn, setLoading]);
+	}, [options, clientId, scriptLoaded, onSignIn, setLoading]);
 
 	return <button ref={buttonRef} type='button' className={className} />;
 };
@@ -78,16 +78,14 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({
 GoogleLogin.defaultProps = {
 	className: '',
 	clientId: '',
-	theme: 'outline',
-	customClassName: '',
+	options: undefined,
 	setLoading: undefined,
 };
 
 GoogleLogin.propTypes = {
 	clientId: PropType.string.isRequired,
 	className: PropType.string,
-	theme: PropType.string,
-	customClassName: PropType.string,
+	options: PropType.object,
 	setLoading: PropType.func,
 };
 
