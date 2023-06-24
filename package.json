@@ -1,0 +1,63 @@
+{
+	"name": "@leonardmorina/react-google-login",
+	"version": "1.0.0",
+	"description": "",
+	"main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
+	"scripts": {
+		"build": "yarn build:esm && yarn build:cjs",
+		"build:esm": "tsc",
+		"build:cjs": "tsc --module commonjs --outDir dist/cjs",
+		"lint": "eslint \"{**/*,*}.{js,ts,jsx,tsx}\"",
+		"prettier": "prettier --write \"{src,tests,example/src}/**/*.{js,ts,jsx,tsx}\"",
+		"test": "jest --config jestconfig.json",
+    "prepare": "yarn run build",
+    "prepublishOnly": "yarn test && yarn run prettier && yarn run lint"
+	},
+  "keywords": [
+    "react",
+    "google",
+    "google-login",
+    "react-google-login"
+  ],
+  "license": "MIT",
+	"author": "Leonard Morina (leonard-morina)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leonard-morina/react-google-login.git"
+  },
+	"devDependencies": {
+		"@testing-library/react": "^14.0.0",
+		"@types/jest": "^29.5.2",
+		"@types/react": "^18.2.14",
+		"@typescript-eslint/eslint-plugin": "^5.60.0",
+		"@typescript-eslint/parser": "^5.60.0",
+		"eslint": "^8.43.0",
+		"eslint-config-prettier": "^8.8.0",
+		"eslint-plugin-import": "^2.27.5",
+		"eslint-plugin-jsx-a11y": "^6.7.1",
+		"eslint-plugin-prettier": "^4.2.1",
+		"eslint-plugin-react": "^7.32.2",
+		"eslint-plugin-react-hooks": "^4.6.0",
+		"jest": "^29.5.0",
+		"jest-canvas-mock": "^2.5.1",
+		"jest-environment-jsdom": "^29.5.0",
+		"prettier": "^2.8.8",
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0",
+		"ts-jest": "^29.1.0",
+		"typescript": "^5.1.3"
+	},
+  "peerDependencies": {
+    "react": ">=16"
+  },
+	"dependencies": {
+		"prop-types": "^15.8.1"
+	},
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ]
+}
