@@ -41,7 +41,7 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({
 		}
 
 		return reconciledOptions;
-	}, [options]);
+	}, [options, buttonRef.current?.clientWidth]);
 
 	useEffect(() => {
 		if (!window || scriptLoaded) return;
