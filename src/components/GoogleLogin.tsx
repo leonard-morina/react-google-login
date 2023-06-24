@@ -22,6 +22,7 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({
 	showOneTapDialog,
 }) => {
 	const [scriptLoaded, setScriptLoaded] = useState<boolean>(false);
+
 	const windowSize = useWindowSize();
 
 	const buttonRef = useRef<HTMLButtonElement>(null);
@@ -62,7 +63,7 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({
 
 			setLoading?.(true);
 
-			if (showOneTapDialog) google?.accounts.id.prompt(); // also display the One Tap dialog
+			if (showOneTapDialog) google?.accounts.id.prompt();
 		};
 
 		const scriptExists = document.querySelector(`script[src="${SCRIPT_SRC}"]`);
@@ -91,7 +92,9 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({
 		if (!google) return;
 
 		google?.accounts.id.renderButton(buttonRef.current, googleOptions);
-	}, [scriptLoaded, windowSize, googleOptions]);
+
+		if (showOneTapDialog) google?.accounts.id.prompt();
+	}, [scriptLoaded, windowSize, googleOptions, showOneTapDialog, buttonRef.current]);
 
 	return <button ref={buttonRef} type='button' className={className} />;
 };
