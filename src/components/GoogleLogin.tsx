@@ -1,4 +1,4 @@
-import React, { useEffect, FC, useState, useRef, useMemo } from 'react';
+import React, { useEffect, FC, useState, useRef, useMemo, useCallback } from 'react';
 import PropType from 'prop-types';
 import useWindowSize from '../hooks/useWindowSize';
 
@@ -44,6 +44,15 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({
 		return reconciledOptions;
 	}, [options, buttonRef.current?.clientWidth]);
 
+	const promptOneTapDialog = useCallback((google: any) => {
+		google?.accounts.id.prompt((notification: any) => {
+			if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+				document.cookie = `g_state=;path=/;expires=Thu, 01 Jan 1970 00:00:01 GMT`;
+				google.accounts.id.prompt();
+			}
+		});
+	}, []);
+
 	useEffect(() => {
 		if (!window || scriptLoaded) return;
 		const google = (window as any)?.google;
@@ -63,7 +72,7 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({
 
 			setLoading?.(true);
 
-			if (showOneTapDialog) google?.accounts.id.prompt();
+			if (showOneTapDialog) promptOneTapDialog(google);
 		};
 
 		const scriptExists = document.querySelector(`script[src="${SCRIPT_SRC}"]`);
@@ -84,7 +93,15 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({
 				document.getElementById('google-client-script')?.remove();
 			}
 		};
-	}, [googleOptions, clientId, scriptLoaded, onSignIn, setLoading, showOneTapDialog]);
+	}, [
+		googleOptions,
+		clientId,
+		scriptLoaded,
+		onSignIn,
+		setLoading,
+		showOneTapDialog,
+		promptOneTapDialog,
+	]);
 
 	useEffect(() => {
 		if (!scriptLoaded || !windowSize?.width) return;
@@ -93,8 +110,15 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({
 
 		google?.accounts.id.renderButton(buttonRef.current, googleOptions);
 
-		if (showOneTapDialog) google?.accounts.id.prompt();
-	}, [scriptLoaded, windowSize, googleOptions, showOneTapDialog, buttonRef.current]);
+		if (showOneTapDialog) promptOneTapDialog(google);
+	}, [
+		scriptLoaded,
+		windowSize,
+		googleOptions,
+		showOneTapDialog,
+		buttonRef.current,
+		promptOneTapDialog,
+	]);
 
 	return <button ref={buttonRef} type='button' className={className} />;
 };
