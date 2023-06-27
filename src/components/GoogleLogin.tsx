@@ -55,7 +55,8 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({
 		}
 
 		return reconciledOptions;
-	}, [options, divRef.current?.clientWidth]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [divRef.current?.clientWidth]);
 
 	const promptOneTapDialog = useCallback((google: any) => {
 		google?.accounts.id.prompt((notification: any) => {
@@ -106,15 +107,7 @@ const GoogleLogin: FC<IGoogleLoginProps> = ({
 				document.getElementById('google-client-script')?.remove();
 			}
 		};
-	}, [
-		googleOptions,
-		clientId,
-		scriptLoaded,
-		onSignIn,
-		setLoading,
-		showOneTapDialog,
-		promptOneTapDialog,
-	]);
+	}, [clientId, scriptLoaded, onSignIn, setLoading, showOneTapDialog, promptOneTapDialog]);
 
 	useEffect(() => {
 		if (!scriptLoaded || !windowSize?.width) return;
