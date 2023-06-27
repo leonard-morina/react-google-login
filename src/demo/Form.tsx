@@ -9,13 +9,10 @@ const DemoForm = () => {
 			<GoogleLogin
 				className='md:w-4/6 w-full mb-4 mx-auto' // flex justif-y-center items-center //
 				clientId='demo'
-				theme='filled'
 				options={{
 					height: 55,
 					theme: 'outline',
-					// iframe_id: 'auth-google'
 				}}
-				customClassName='btn'
 				showOneTapDialog
 				onSignIn={(res) => {
 					console.log('here', res);
